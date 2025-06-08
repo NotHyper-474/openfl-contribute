@@ -13,11 +13,15 @@ import lime.app.Promise;
 import lime.utils.AssetLibrary as LimeAssetLibrary;
 import lime.utils.Assets as LimeAssets;
 #end
-#if lime_vorbis
+#if (lime_vorbis || lime_sdlsound)
 import lime.media.AudioBuffer;
+#if lime_vorbis
 import lime.media.vorbis.VorbisFile;
 #end
-
+#if lime_sdlsound
+import lime.media.sdlsound.SDLSoundSample;
+#end
+#end
 /**
 	The Assets class provides a cross-platform interface to access
 	embedded images, fonts, sounds and other resource files.
@@ -258,16 +262,24 @@ class Assets
 
 	public static function getMusic(id:String, useCache:Bool = true):Sound
 	{
-		#if (lime_vorbis && lime > "7.9.0")
+		#if (lime > "7.9.0")
+		#if lime_sdlsound
+		var path = getPath(id);
+		// TODO: What if SDL_sound can't load it?
+		var soundSample = SDLSoundSample.fromFile(path);
+		var buffer = AudioBuffer.fromSDLSoundSample(soundSample);
+		return Sound.fromAudioBuffer(buffer);
+		#elseif lime_vorbis
 		var path = getPath(id);
 		// TODO: What if it is a WAV or non-Vorbis file?
 		var vorbisFile = VorbisFile.fromFile(path);
 		var buffer = AudioBuffer.fromVorbisFile(vorbisFile);
 		return Sound.fromAudioBuffer(buffer);
-		#else
+		#end
+		#end
+
 		// TODO: Streaming sound
 		return getSound(id, useCache);
-		#end
 	}
 
 	/**

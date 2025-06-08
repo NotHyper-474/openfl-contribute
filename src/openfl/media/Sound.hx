@@ -796,6 +796,10 @@ class Sound extends EventDispatcher
 				var samples = Int64.toInt(__buffer.__srcVorbisFile.pcmTotal());
 				return Std.int(samples / __buffer.sampleRate * 1000);
 			}
+			else if (__buffer.__srcSDLSoundSample != null)
+			{
+				return __buffer.__srcSDLSoundSample.getDuration();
+			}
 			else
 			{
 				return 0;
